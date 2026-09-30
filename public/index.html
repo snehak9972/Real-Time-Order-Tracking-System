@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Live Order Tracker</title>
+<style>
+ body{font-family:system-ui,sans-serif;max-width:480px;margin:2rem auto;padding:0 1rem}
+ button{padding:.6rem 1rem;font-size:1rem;cursor:pointer}
+ ol{list-style:none;padding:0} li{padding:.4rem .6rem;margin:.2rem 0;border-radius:6px;background:#eee;color:#666}
+ li.done{background:#d8f3dc;color:#1b4332}
+</style></head><body>
+<h1>Live Order Tracker</h1>
+<button id="go">Place demo order</button>
+<p id="info"></p>
+<ol id="steps"></ol>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const FLOW=['PLACED','ACCEPTED','PREPARING','READY','OUT_FOR_DELIVERY','DELIVERED'];
+const steps=document.getElementById('steps'), info=document.getElementById('info');
+const socket=io(); let current=null;
+function render(status){
+  steps.innerHTML=''; const idx=FLOW.indexOf(status);
+  FLOW.forEach((s,i)=>{const li=document.createElement('li');li.textContent=s;if(i<=idx)li.className='done';steps.appendChild(li);});
+}
+socket.on('status',e=>{ if(e.orderId===current) render(e.status); });
+document.getElementById('go').onclick=async()=>{
+  const r=await fetch('http://localhost:3001/orders',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({customer:'Demo User',items:[{name:'Paneer wrap',qty:2}]})});
+  const o=await r.json(); current=o.id; info.textContent=`Order ${o.id.slice(0,8)} → ${o.kitchenId}`;
+  render(null); socket.emit('subscribe',o.id);
+};
+</script></body></html>

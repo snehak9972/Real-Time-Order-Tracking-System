@@ -1,0 +1,17 @@
+{
+  "name": "real-time-order-tracking",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "order": "node src/order-service.js",
+    "kitchen": "node src/kitchen-service.js",
+    "tracking": "node src/tracking-service.js",
+    "test": "node --test test/logic.test.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "kafkajs": "^2.2.4",
+    "pg": "^8.12.0",
+    "socket.io": "^4.7.5"
+  }
+}
